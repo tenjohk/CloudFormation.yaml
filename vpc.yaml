@@ -1,0 +1,53 @@
+# This is a hands-on task to create the cloudformation stack with
+# VPC with a ciderblock/16
+# 1 pusubnet/24
+# 1 pvsubnet/24
+# ec2 instance
+# One S3 bucket to store invoice pds files
+
+
+Resources:
+  vpctest:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+        - Key: stack
+          Value: production
+  mySubnetpu:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: "vpc-03402a9f265ca49cb"
+      CidrBlock: 10.0.0.1/24
+      AvailabilityZone: "us-east-1a"
+      Tags:
+      - Key: Name
+        Value: pusn
+  mySubnetpn:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: "vpc-03402a9f265ca49cb"
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: "us-east-1b"
+      Tags:
+      - Key: Name
+        Value: pvsn
+  webserver:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-0022f774911c1d690"
+      InstanceType: "t2.micro"
+      KeyName: "eva"
+      NetworkInterfaces:
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        SubnetId: "subnet-05300c1207dd9c226"
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sdm"
+        Ebs:
+          VolumeType: "io1"
+          Iops: 100
+          DeleteOnTermination: true
+          VolumeSize: 8
